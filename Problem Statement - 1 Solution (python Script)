@@ -1,0 +1,52 @@
+import psutil
+import logging
+import time
+
+logging.basicConfig(filename='system_health.log', level=logging.INFO, 
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+CPU_THRESHOLD = 80
+MEMORY_THRESHOLD = 80
+DISK_THRESHOLD = 80
+
+def check_cpu():
+    cpu_usage = psutil.cpu_percent(interval=1)
+    if cpu_usage > CPU_THRESHOLD:
+        message = f"High CPU usage detected: {cpu_usage}%"
+        logging.warning(message)
+        print(message)
+
+def check_memory():
+    memory = psutil.virtual_memory()
+    memory_usage = memory.percent
+    if memory_usage > MEMORY_THRESHOLD:
+        message = f"High Memory usage detected: {memory_usage}%"
+        logging.warning(message)
+        print(message)
+
+def check_disk():
+    disk = psutil.disk_usage('/')
+    disk_usage = disk.percent
+    if disk_usage > DISK_THRESHOLD:
+        message = f"High Disk usage detected: {disk_usage}%"
+        logging.warning(message)
+        print(message)
+
+def check_processes():
+    processes = psutil.pids()
+    running_processes = len(processes)
+    logging.info(f"Running processes count: {running_processes}")
+    print(f"Running processes count: {running_processes}")
+
+def monitor_system():
+    while True:
+        check_cpu()
+        check_memory()
+        check_disk()
+        check_processes()
+        time.sleep(10)
+
+if __name__ == "__main__":
+    print("Starting system health monitoring...")
+    logging.info("System health monitoring started")
+    monitor_system()
