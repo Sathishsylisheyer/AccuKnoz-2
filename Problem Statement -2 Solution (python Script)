@@ -1,0 +1,43 @@
+import re
+from collections import Counter
+
+log_file_path = 'webserver.log'
+
+def parse_log(log_file_path):
+    with open(log_file_path, 'r') as f:
+        log_data = f.readlines()
+    return log_data
+
+def count_404_errors(log_data):
+    return sum(1 for line in log_data if ' 404 ' in line)
+
+def most_requested_pages(log_data):
+    pages = [re.findall(r'GET (.*?) HTTP', line)[0] for line in log_data if 'GET' in line]
+    return Counter(pages).most_common(5)
+
+def most_frequent_ips(log_data):
+    ips = [line.split()[0] for line in log_data]
+    return Counter(ips).most_common(5)
+
+def generate_report(log_data):
+    report = {
+        '404_errors': count_404_errors(log_data),
+        'top_requested_pages': most_requested_pages(log_data),
+        'top_requesting_ips': most_frequent_ips(log_data),
+    }
+    return report
+
+def display_report(report):
+    print(f"404 Errors: {report['404_errors']}")
+    print("\nTop 5 Requested Pages:")
+    for page, count in report['top_requested_pages']:
+        print(f"{page}: {count} requests")
+
+    print("\nTop 5 IP Addresses with Most Requests:")
+    for ip, count in report['top_requesting_ips']:
+        print(f"{ip}: {count} requests")
+
+if __name__ == "__main__":
+    log_data = parse_log(log_file_path)
+    report = generate_report(log_data)
+    display_report(report)
